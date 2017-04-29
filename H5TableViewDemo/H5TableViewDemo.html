@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script>
+		function GetData() {
+			window.WebViewJavascriptBridge.callHandler('GetData')
+		}
+		function TouchCell(name) {
+			alert('点击了'+name)
+		}
+		</script>
+	</head>
+	<body>
+		<script>
+            function setupWebViewJavascriptBridge(callback) {
+                if (window.WebViewJavascriptBridge) { return callback(WebViewJavascriptBridge); }
+                if (window.WVJBCallbacks) { return window.WVJBCallbacks.push(callback); }
+                window.WVJBCallbacks = [callback];
+                var WVJBIframe = document.createElement('iframe');
+                WVJBIframe.style.display = 'none';
+                WVJBIframe.src = 'wvjbscheme://__BRIDGE_LOADED__';
+                document.documentElement.appendChild(WVJBIframe);
+                setTimeout(function() { document.documentElement.removeChild(WVJBIframe) }, 0)
+            }
+            setupWebViewJavascriptBridge(function(bridge) {
+                //注册JS的方法给OC
+                bridge.registerHandler('GetDataList', function(data, responseCallback) {
+                    //清空原来的TableView效果(此处要注明之前设置的id)
+                	$("#tableview").html('');
+                    //返回的数据应当是JSON的字符串，按照相应的格式获取数据
+                	var jsonObj = JSON.parse(data);
+                	for(var i = 0;i<jsonObj.length;i++){
+                        //根据数据设置Cell的格式，并给Cell添加点击方法(此处仍要注明之前设置的id)
+                		$("#tableview").append('<div class="item" onclick="TouchCell(\'' + jsonObj[i].name + '\')" style="border-top:1px solid #dddddd;padding:1.5rem 0">'
+              +'<span class="inline" style="text-align: left">'
+              +'<div style="font-size:2.66667rem;color:#221f1f;" class="name">'+jsonObj[i].name+'</div>'
+              +'<div style="font-size:2.333333rem;color:#999999;" class="index">'+jsonObj[i].index+'</div>'
+              +'</span>'
+              + ' </div>'
+            )
+                }
+                })
+            })                         
+    </script>
+		<script src="jquery-2.1.3.min.js"></script>
+		<button onclick="GetData()">获取数据</button>
+		<div id="tableview" style="text-align:center">
+
+		</div>
+	</body>
+</html>
