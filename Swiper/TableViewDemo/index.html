@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Demo</title>
+		<link rel="stylesheet" href="swiper.min.css" />
+		<script type="text/javascript" src="swiper.min.js" ></script>
+		<style>
+			*{
+				padding: 0;
+				margin: 0;
+			}
+			.swiper-container{
+				width: 100%;
+				/*height: 100%;*/
+			}
+			.swiper-slide {
+				text-align: center;
+				font-size: 18px;
+				background: #fff;
+				/* Center slide text vertically */
+				 display: -webkit-box;
+				 display: -ms-flexbox;
+				 display: -webkit-flex;
+				 display: flex;
+				 -webkit-box-pack: center;
+				 -ms-flex-pack: center;
+				 -webkit-justify-content: center;
+				 justify-content: center;
+				 -webkit-box-align: center;
+				 -ms-flex-align: center;
+				 -webkit-align-items: center;
+				 align-items: center;
+				 }
+				 .btn {
+				 	width: 100px;
+				 	height: 20px;
+				 	margin-top: 5px;
+				 }
+		</style>
+	</head>
+	<body>
+		<input type="button" id="buttonID" value="加载数据" onclick="GetData()" style="margin-top: 20px;" />
+			<div class="swiper-container" style="height: 360px;top: 50px;">
+				<div class="swiper-wrapper" id="list">
+				</div>
+			</div>
+		<script>
+			var swiper = new Swiper('.swiper-container', {
+				paginationClickable: true,
+				slidesPerView: 10,
+				direction: 'vertical'});
+			function setupWebViewJavascriptBridge(callback) {
+				if(window.WebViewJavascriptBridge) {
+					return callback(WebViewJavascriptBridge);
+				}
+				if(window.WVJBCallbacks) {
+					return window.WVJBCallbacks.push(callback);
+				}
+				window.WVJBCallbacks = [callback];
+				var WVJBIframe = document.createElement('iframe');
+				WVJBIframe.style.display = 'none';
+				WVJBIframe.src = 'wvjbscheme://__BRIDGE_LOADED__';
+				document.documentElement.appendChild(WVJBIframe);
+				setTimeout(function() {
+					document.documentElement.removeChild(WVJBIframe)
+				}, 0)
+			}
+			setupWebViewJavascriptBridge(function(bridge) {
+				bridge.registerHandler('GetDataList', function(data, responseCallback) {
+					var jsonObj = JSON.parse(data);
+					for(var i = 0; i < jsonObj.length; i++) {
+						swiper.appendSlide(
+							'<div class="swiper-slide" onclick="TouchCell(\'' + jsonObj[i].name + '\')">'+jsonObj[i].name+'</div>'
+						)
+					}
+				})
+			})
+			function GetData() {
+				window.WebViewJavascriptBridge.callHandler('GetData')
+			}
+
+			function TouchCell(name) {
+				alert('点击了' + name)
+			}
+		</script>
+	</body>
+</html>
